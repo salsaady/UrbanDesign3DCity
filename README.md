@@ -2,6 +2,10 @@
 
 A web application that that displays a 3D visualization of Calgary's buildings. The backend uses Flask to serve building data (processed with GeoPandas), and the frontend renders the 3D buildings using React with Three.js (via @react-three/fiber). Users can interact with the map by clicking on buildings to view details such as ID, address, and height.
 
+## Live Demo
+
+Checkout the live application here: https://urban-design-city.vercel.app/
+
 ## Features
 
 - **3D Visualization:**  
