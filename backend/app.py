@@ -17,32 +17,22 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GEOJSON_PATH = os.path.join(BASE_DIR, 'data', 'buildings.geojson')
 
-gdf = gpd.read_file(GEOJSON_PATH)
-
-# Build a list of dictionaries to serve via the API
-buildings = []
-for _, row in gdf.iterrows():
-    # Convert geometry to the GeoJSON format
-    geometry = row["geometry"].__geo_interface__
-
-    # Compute the building's height
-    try:
-        rooftop = float(row.get("rooftop_elev_z", 0))
-        ground_max = float(row.get("grd_elev_max_z", 0))
-        height = rooftop - ground_max
-    except Exception:
-        height = None
-
-    buildings.append({
-        "id": row.get("id"),     
-        "geometry": geometry,
-        "height": row.get("height"),
-        "stage": row.get("stage"),        
-        "address": row.get("address"),
-    })
-
 @app.route("/api/buildings")
 def get_buildings():
+    gdf = gpd.read_file(GEOJSON_PATH)
+
+    # Build a list of dictionaries to serve via the API
+    buildings = []
+    for _, row in gdf.iterrows():
+        # Convert geometry to the GeoJSON format
+        geometry = row["geometry"].__geo_interface__
+        buildings.append({
+            "id": row.get("id"),     
+            "geometry": geometry,
+            "height": row.get("height"),
+            "stage": row.get("stage"),        
+            "address": row.get("address"),
+        })
     return jsonify(buildings)
 
 if __name__ == "__main__":
