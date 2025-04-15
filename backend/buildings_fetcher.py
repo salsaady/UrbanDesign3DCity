@@ -23,6 +23,43 @@ def reverse_geocode(lat, lon, geolocator):
         print(f"Reverse geocoding error at ({lat}, {lon}): {e}")
         return "Error"
 
+def compute_height(row):
+    """
+    Computes the building's height as the difference between the rooftop elevation and 
+    the maximum ground elevation, rounded to two decimal places.
+
+    Args:
+        row (pandas.Series): A row from the GeoDataFrame containing building data.
+
+    Returns:
+        float or None: The rounded height if the values are valid, otherwise None.
+    """
+    try:
+        height_diff = float(row["building_top_z"]) - float(row["ground_max_z"])
+        return round(height_diff, 2)
+    except (ValueError, TypeError):
+        return None
+
+
+def compute_centroids(gdf, source_crs="EPSG:4326", proj_crs="EPSG:3857"):
+    """
+    Computes centroids for the geometries in the GeoDataFrame.
+
+    Args:
+        gdf (GeoDataFrame): The input GeoDataFrame with geometries.
+        source_crs (str): The coordinate reference system of the input GeoDataFrame.
+        proj_crs (str): The projected CRS to use for centroid computation.
+
+    Returns:
+        GeoSeries: A GeoSeries of centroids reprojected back to source_crs.
+    """
+    # Reproject the GeoDataFrame to a projected CRS for accurate centroid computation
+    gdf_proj = gdf.to_crs(proj_crs)
+    gdf_proj["centroid_proj"] = gdf_proj.geometry.centroid
+    # Reproject the centroid column back to the source CRS
+    centroids_wgs84 = gdf_proj["centroid_proj"].to_crs(source_crs)
+    return centroids_wgs84
+
 def get_buildings():
     """
     Fetch building data from the City of Calgary 3D Buildings dataset,
@@ -72,21 +109,12 @@ def get_buildings():
         }
     )
     
-    # calculate building height as the difference between the rooftop and maximum ground elevation
-    def compute_height(row):
-        try:
-            return float(row["building_top_z"]) - float(row["ground_max_z"])
-        except (ValueError, TypeError):
-            return None
     gdf["height"] = gdf.apply(compute_height, axis=1)
     
     # find centroids
-    gdf_proj = gdf.to_crs("EPSG:3857")
-    gdf_proj["centroid_proj"] = gdf_proj.geometry.centroid
-    centroids_wgs84 = gdf_proj["centroid_proj"].to_crs("EPSG:4326")
-    gdf["centroid"] = centroids_wgs84
+    gdf["centroid"] = compute_centroids(gdf)
     
-    # Perform reverse geocoding on each centroid.
+    # Perform reverse geocoding on each centroid
     geolocator = Nominatim(user_agent="urban_design_app")
     gdf["address"] = gdf["centroid"].apply(lambda point: reverse_geocode(point.y, point.x, geolocator))
     
