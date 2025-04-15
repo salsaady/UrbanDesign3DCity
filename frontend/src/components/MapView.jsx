@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import Building from './Building';
+import { Loader2Icon } from "lucide-react";
 
 /**
  * MapView component renders the 3D map by fetching building data from the backend and displaying
@@ -28,6 +29,17 @@ const MapView = () => {
         console.error('Error fetching building data:', error);
       });
   }, []);
+
+
+  // If no building data is loaded yet, display a loading indicator.
+  if (buildings.length === 0) {
+    return (
+      <div style={{ width: '100%', height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection:'column'}}>
+        <Loader2Icon size={48} className="animate-spin" style={{ marginBottom: '16px' }} />
+        <p>Fetching building data...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="map-container" style={{ width: '100%', height: '600px' }}>
