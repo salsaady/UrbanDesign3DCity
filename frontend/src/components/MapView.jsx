@@ -39,6 +39,12 @@ const MapView = () => {
         <directionalLight position={[0, 0, 150]} intensity={1} />
         <OrbitControls />
 
+        {/* Render the ground plane */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+          <planeGeometry args={[2000, 2000]} />
+          <meshStandardMaterial color="#259131" />
+        </mesh>
+        {/* Render buildings */}
         {buildings.map((building) => (
           <Building
             key={building.id}
