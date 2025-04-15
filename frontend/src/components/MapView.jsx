@@ -35,7 +35,14 @@ const MapView = () => {
   if (buildings.length === 0) {
     return (
       <div style={{ width: '100%', height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection:'column'}}>
-        <Loader2Icon size={48} className="animate-spin" style={{ marginBottom: '16px' }} />
+        <Loader2Icon
+          size={48}
+          style={{
+            animation: 'spin 1s linear infinite',
+            marginBottom: '16px',
+            display: 'inline-block'
+            }}
+          />        
         <p>Fetching building data...</p>
       </div>
     );
