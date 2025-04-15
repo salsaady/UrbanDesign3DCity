@@ -23,7 +23,10 @@ Checkout the live application here: https://urban-design-city.vercel.app/
 
 ## Data Source and Update Strategy
 
-The backend loads building data from a static GeoJSON file (data/buildings.geojson), which is generated using a custom Python script (get_buildings.py). This file is updated manually rather than being fetched live from the City of Calgary 3D Buildings API on every request because for this use case the buildings aren't changing often and it would take a really long time to fetch the data upon request. This approach provides better performance and consistency for this use case.
+The backend loads building data from a static GeoJSON file (`data/buildings.geojson`), which is generated using a custom Python script (`buildings_fetcher.py`). This file is updated manually rather than being fetched live from the API on every request because, for this use case, the buildings aren't changing often and fetching the data live would take a really long time.
+
+**Data Source:**  
+The building data is derived from the 3D Buildings - Citywide dataset dataset available from the City of Calgary Open Data portal: https://data.calgary.ca/Base-Maps/3D-Buildings-Citywide/cchr-krqg/about_data
 
 ## Diagrams
 
@@ -69,7 +72,7 @@ A UML sequence diagram that documents the application’s flow is included at th
    npm run dev
    ```
 
-### Teck Stack
+## Tech Stack
 
 - **Frontend:**
 
@@ -82,3 +85,28 @@ A UML sequence diagram that documents the application’s flow is included at th
   - Flask
   - Flask-CORS
   - GeoPandas
+
+## File Structure
+
+### backend/
+
+- app.py: Main Flask application that serves building data via a REST API.
+- get_buildings.py: Script to fetch, process, and generate the static buildings.geojson file.
+- data/
+  - buildings.geojson: Static GeoJSON file containing building information.
+- requirements.txt: Python dependencies for the backend.
+
+### frontend/
+
+- package.json: Frontend project dependencies and scripts.
+- index.html: HTML template for the React application.
+- src/
+  - App.jsx: Main React component that structures the application.
+  - components/
+    - MapView.jsx: Renders the 3D scene and fetches building data.
+    - Building.jsx: Renders an individual building in 3D.
+    - BuildingPopup.jsx: Displays details of a selected building.
+  - contexts/
+    - BuildingContext.js: React context to manage state for selected building.
+  - utils/
+    - coordinateConversion.js: Utility functions for converting geographic coordinates.
